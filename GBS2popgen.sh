@@ -1,14 +1,4 @@
 #!/bin/bash
-#$ -cwd
-#$ -j y
-#$ -S /bin/bash
-#$ -pe smp 16
-#$ -v PATH
-#$ -V
-#$ -q main.q@@himem
-
-date
-hostname
 
 
 #create a new folder for the quality check reports and files of the Raw data
