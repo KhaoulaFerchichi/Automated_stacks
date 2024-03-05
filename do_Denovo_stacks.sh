@@ -1,16 +1,4 @@
 #!/bin/bash
-#$ -cwd
-#$ -j y
-#$ -S /bin/bash
-#$ -pe smp 16
-#$ -v PATH
-#$ -V
-#$ -q main.q@@himem
-
-date
-hostname
-
-
 
 #automate stacks
 #test from Khaoula
