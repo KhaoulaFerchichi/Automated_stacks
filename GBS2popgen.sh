@@ -17,7 +17,7 @@ for f in GBS_Rawdata\/*.fastq # for each sample
 
 do
     n=${f%%.fastq} # strip part of file name
-    cutadapt -a  AGATCGGAAGAGC -q 20,20  -m 45 -o /GIVE/YOUR/OUTPUT_PATH/clean_data/${n}_cut.fastq $1 ${n}.fastq 
+    cutadapt -a  YOURADAPTERSEQ -q 20,20  -m 45 -o /GIVE/YOUR/OUTPUT_PATH/clean_data/${n}_cut.fastq $1 ${n}.fastq 
                                                        
 done
 
@@ -45,32 +45,32 @@ done
 i=1
 for sample in $samples
 do
-   ustacks -t fastq -f ./clean_data/${sample}.fastq -o ./output_stacks4/ -i $i -m 3 -M 2 -p 16 --force-diff-len 
+   ustacks -t fastq -f ./clean_data/${sample}.fastq -o ./output_stacks/ -i $i -m 3 -M 2 -p 16 --force-diff-len 
    let "i+=1";
 done
 
 #cstacks
-cstacks -n 6 -P ./output_stacks4/ -M ./popumap/popumap.txt -p 8 --k_len 15
+cstacks -n 6 -P ./output_stacks/ -M ./popumap/popumap.txt -p 8 --k_len 15
 
 #sstacks
-sstacks -P ./output_stacks4/ -M ./popumap/popumap.txt -p 8
+sstacks -P ./output_stacks/ -M ./popumap/popumap.txt -p 8
 
 
 #tsv2bam
-tsv2bam -P ./output_stacks4/ -M ./popumap/popumap.txt  -t 8
+tsv2bam -P ./output_stacks/ -M ./popumap/popumap.txt  -t 8
 
 #gstacks
-gstacks -P ./output_stack4/ -M ./popumap/popumap.txt  -t 8 
+gstacks -P ./output_stack/ -M ./popumap/popumap.txt  -t 8 
 
 #populations
-populations -P ./output_stacks4/ -M ./popumap/popumap.txt -r 0.65 --vcf --genepop --structure --fstats --hwe -t 8
+populations -P ./output_stacks/ -M ./popumap/popumap.txt -r 0.65 --vcf --genepop --structure --fstats --hwe -t 8
 
 #vcftools
-vcftools --vcf ./output_stacks4/populations.snps.vcf  --max-missing 0.5 --maf 0.05  --recode --recode-INFO-all --out ./output_stacks1/filtered_popnovo_snps_005maf
+vcftools --vcf ./output_stacks/populations.snps.vcf  --max-missing 0.5 --maf 0.05  --recode --recode-INFO-all --out ./output_stacks/filtered_popnovo_snps_005maf
 
 
 #populations(convert)
-populations -V ./output_stacks4/filtered_popnovo_snps_005maf.recode.vcf -O ./out_treemix/ -M ./popumap/popumap.txt --treemix --structure  --phylip --hwe  -t 8
+populations -V ./output_stacks/filtered_popnovo_snps_005maf.recode.vcf -O ./out_treemix/ -M ./popumap/popumap.txt --treemix --structure  --phylip --hwe  -t 8
 
 #prepare data for plink analyses
 
@@ -86,4 +86,4 @@ cat edit_head filtered_popnovo_snps_005maf.snps.vcf >> filtered_popnovo_snps_005
 #this will generate eigenvalue and eigenvectors files
 ./plink2 --vcf rfiltered_popnovo_snps_005maf_plink.snps.vcf --double-id --aec --set-missing-var-ids @:# --extract popnovo_snps_005maf.prune.in --make-bed --pca 10 --out plink_005maf
 #for huge samples use the approx option to force generating pc analyses
-.plink2 --vcf filtered_popnovo_snps_005maf_plink.snps.vcf --pca approx 10 --aec --set-missing-var-ids @:# --extract popnovo_snps_005maf.prune.in --make-bed  --out  plink_005maf 
+./plink2 --vcf filtered_popnovo_snps_005maf_plink.snps.vcf --pca approx 10 --aec --set-missing-var-ids @:# --extract popnovo_snps_005maf.prune.in --make-bed  --out  plink_005maf 
